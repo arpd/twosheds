@@ -173,16 +173,6 @@ class Completer(object):
             if k.startswith(word):
                 yield "$" + k
 
-    def get_completion_word(self):
-        """Get the word to complete."""
-        line_buffer = rl.completion.line_buffer
-        sentence = 0
-        if sentence.endswith(" "):
-            return ""
-        else:
-            tokens = sentence.split()
-            return tokens[-1] if tokens else ""
-
     def inflect(self, filename):
         """Inflect a filename to indicate its type.
 
