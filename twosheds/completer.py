@@ -6,7 +6,7 @@ This module implements command completion.
 """
 import os
 import re
-import readline
+import rl
 import sys
 import traceback
 
@@ -93,7 +93,19 @@ class Completer(object):
         :param word: the word to complete
         :param state: an int, used to iterate over the choices
         """
-        matches = self.gen_matches(self.get_completion_word())
+        # expand the line buffer before completing
+        rl.completion.line_buffer = self.grammar.expand(rl.completion.line_buffer)
+
+        # TODO: doing this manually right now, but may make sense to exploit
+        rl.completion.suppress_append = True
+        # rl.completion.filename_completion_desired = True
+
+        rl.completer.word_break_characters = (rl.completer
+                                              .word_break_characters
+                                              .replace("$", "")
+                                              .replace("/", ""))
+
+        matches = self.gen_matches(word)
         # defend this against bad user input for regular expression patterns
         try:
             matches = self.exclude_matches(matches)
@@ -159,12 +171,12 @@ class Completer(object):
         """ 
         for k in os.environ:
             if k.startswith(word):
-                yield k
+                yield "$" + k
 
     def get_completion_word(self):
         """Get the word to complete."""
-        line_buffer = readline.get_line_buffer()
-        sentence = self.grammar.expand(line_buffer)
+        line_buffer = rl.completion.line_buffer
+        sentence = 0
         if sentence.endswith(" "):
             return ""
         else:

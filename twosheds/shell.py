@@ -18,6 +18,7 @@ from .grammar import Grammar
 from .language import Language
 from .semantics import Semantics
 from .transformation import AliasTransformation, TildeTransformation, VariableTransformation
+from rl import completer, completion
 
 DEFAULT_HISTFILE = os.path.expanduser("~/.console-history")
 
@@ -68,9 +69,8 @@ class Shell(CommandLineInterface):
         self.language = Language(grammar, semantics)
 
         self.completer = Completer(grammar, use_suffix=use_suffix, exclude=exclude)
-        readline.parse_and_bind("bind ^I rl_complete" if sys.platform == 'darwin'
-                                else "tab: complete")
-        readline.set_completer(self.completer.complete)
+        completer.parse_and_bind('TAB: complete')
+        completer.completer = self.completer.complete
 
         self.histfile = histfile or DEFAULT_HISTFILE,
         if hasattr(readline, "read_history_file"):
